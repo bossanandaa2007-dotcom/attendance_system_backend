@@ -43,6 +43,37 @@ def route_create_users():
 
     return jsonify({"message": "Users created", "data": created_users}), 201
 
+@routes_bp.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    if not email or not password:
+        return jsonify({"error": "Email and password required"}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user or not user.check_password(password):
+        return jsonify({"error": "Invalid email or password"}), 401
+
+    # Generate JWT token (expires in 2 hours)
+    payload = {
+        "user_id": user.id,
+        "role": user.role,
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(hours=2)
+    }
+    token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")
+
+    return jsonify({
+        "message": f"Welcome {user.name}!",
+        "token": token,
+        "user": {
+            "id": user.id,
+            "name": user.name,
+            "email": user.email,
+            "role": user.role
+        }
+    }), 200
 
 @routes_bp.route('/classroom/<int:classroom_id>/qr', methods=['GET'])
 def classroom_qr(classroom_id):
@@ -72,7 +103,7 @@ def classroom_qr(classroom_id):
 @routes_bp.route('/attendance/commit', methods=['POST'])
 def commit_attendance():
     data = request.json
-    token = data.get("token")
+    token = data.get("token", "").strip()
     user_id = data.get("user_id")  # authenticated user ID
 
     if not token or not user_id:

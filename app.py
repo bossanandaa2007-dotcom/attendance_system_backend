@@ -17,6 +17,8 @@ DB_NAME = os.getenv("DB_NAME")
 
 def create_app():
     app = Flask(__name__)
+    from flask_cors import CORS
+    CORS(app)
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Step 1: Ensure database exists using pymysql directly

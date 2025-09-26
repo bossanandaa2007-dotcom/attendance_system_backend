@@ -17,7 +17,9 @@ users_data = [
 
 classrooms_data = [
     {"name": "AI_DS 101", "course_code": "AI101", "faculty_email": "bossfaculty@vernex.com"}
+    {"name": "AI_DS 102", "course_code": "AI102", "faculty_email": "bossfaculty1@vernex.com"}
 ]
+
 
 
 def seed():
